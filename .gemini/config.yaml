@@ -1,0 +1,24 @@
+# Gemini Code Assist Configuration
+# https://developers.google.com/gemini-code-assist/docs/customize-gemini-behavior-github
+
+# Enable/disable features
+code_review:
+  enabled: true
+  auto_review: true  # Automatically review new PRs
+
+# Language settings
+language: ko  # 한국어로 리뷰
+
+# Review focus areas
+focus_areas:
+  - security
+  - performance
+  - best_practices
+  - error_handling
+
+# Ignore patterns
+ignore:
+  - "*.lock"
+  - "*.md"
+  - "frontend/**"
+  - "tests/**"
