@@ -1,0 +1,108 @@
+# Fast Light Chat - Local Development Environment
+# Usage: docker compose up -d
+# With dev tools: docker compose --profile dev-tools up -d
+
+services:
+  # FastAPI Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: fast-light-chat-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/fast_light_chat
+      - MONGODB_URL=mongodb://mongo:27017
+      - MONGODB_DATABASE=fast_light_chat
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+      redis:
+        condition: service_started
+    volumes:
+      - ./app:/app/app
+      - ./alembic:/app/alembic
+      - ./frontend:/app/frontend
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: fast-light-chat-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fast_light_chat
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB Database
+  mongo:
+    image: mongo:7.0
+    container_name: fast-light-chat-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    command: mongod --quiet --logpath /dev/null
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: fast-light-chat-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+  # MongoDB Express (개발용 DB 관리 UI)
+  mongo-express:
+    image: mongo-express
+    container_name: fast-light-chat-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      - mongo
+    profiles:
+      - dev-tools
+
+  # Redis Commander (개발용 Redis 관리 UI)
+  redis-commander:
+    image: rediscommander/redis-commander
+    container_name: fast-light-chat-redis-commander
+    restart: unless-stopped
+    ports:
+      - "8082:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    depends_on:
+      - redis
+    profiles:
+      - dev-tools
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data:

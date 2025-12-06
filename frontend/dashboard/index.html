@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast Light Chat - Agent Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div id="app" class="dashboard">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1 class="logo">Fast Light Chat</h1>
+            </div>
+            <div class="header-right">
+                <div class="agent-status">
+                    <select id="agent-status" class="status-select">
+                        <option value="online">🟢 온라인</option>
+                        <option value="away">🟡 자리비움</option>
+                        <option value="busy">🔴 바쁨</option>
+                        <option value="offline">⚫ 오프라인</option>
+                    </select>
+                </div>
+                <div class="agent-info">
+                    <span id="agent-name">상담원</span>
+                    <button id="logout-btn" class="btn-logout">로그아웃</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Chat List Sidebar -->
+            <aside class="chat-list-sidebar">
+                <div class="sidebar-header">
+                    <h2>대화 목록</h2>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">전체</button>
+                        <button class="filter-tab" data-filter="waiting">대기</button>
+                        <button class="filter-tab" data-filter="active">진행</button>
+                        <button class="filter-tab" data-filter="closed">완료</button>
+                    </div>
+                </div>
+
+                <div id="chat-list" class="chat-list">
+                    <!-- Chat items will be inserted here -->
+                    <div class="chat-item unread" data-chat-id="1">
+                        <div class="chat-avatar">홍</div>
+                        <div class="chat-info">
+                            <div class="chat-name">홍길동</div>
+                            <div class="chat-preview">문의드립니다. 제품 관련해서...</div>
+                        </div>
+                        <div class="chat-meta">
+                            <span class="chat-time">14:31</span>
+                            <span class="chat-badge">2</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-item" data-chat-id="2">
+                        <div class="chat-avatar">김</div>
+                        <div class="chat-info">
+                            <div class="chat-name">김철수</div>
+                            <div class="chat-preview">감사합니다!</div>
+                        </div>
+                        <div class="chat-meta">
+                            <span class="chat-time">14:25</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-item waiting" data-chat-id="3">
+                        <div class="chat-avatar">박</div>
+                        <div class="chat-info">
+                            <div class="chat-name">박영희</div>
+                            <div class="chat-preview">배송 관련 문의입니다</div>
+                        </div>
+                        <div class="chat-meta">
+                            <span class="chat-time">14:20</span>
+                            <span class="chat-status waiting">대기중</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Chat Detail -->
+            <section class="chat-detail">
+                <div id="chat-detail-empty" class="chat-detail-empty">
+                    <p>좌측에서 대화를 선택하세요</p>
+                </div>
+
+                <div id="chat-detail-content" class="chat-detail-content hidden">
+                    <!-- Chat Header -->
+                    <div class="chat-detail-header">
+                        <div class="customer-info">
+                            <span class="customer-name" id="customer-name">홍길동</span>
+                        </div>
+                        <div class="chat-actions">
+                            <select id="chat-status-select" class="chat-status-select">
+                                <option value="active">진행중</option>
+                                <option value="pending">보류</option>
+                                <option value="resolved">해결됨</option>
+                                <option value="closed">종료</option>
+                            </select>
+                            <button class="btn-action" id="btn-transfer">이관</button>
+                        </div>
+                    </div>
+
+                    <!-- Messages -->
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- Messages will be inserted here -->
+                    </div>
+
+                    <!-- Typing Indicator -->
+                    <div id="customer-typing" class="typing-indicator hidden">
+                        고객이 입력 중...
+                    </div>
+
+                    <!-- Input -->
+                    <div class="chat-input-area">
+                        <div class="input-toolbar">
+                            <button class="toolbar-btn" title="이모지">😊</button>
+                            <button class="toolbar-btn" title="파일 첨부">📎</button>
+                            <button class="toolbar-btn" title="템플릿">📝</button>
+                        </div>
+                        <div class="input-container">
+                            <textarea
+                                id="message-input"
+                                class="message-input"
+                                placeholder="메시지를 입력하세요... (Enter로 전송, Shift+Enter로 줄바꿈)"
+                                rows="1"
+                            ></textarea>
+                            <button id="send-btn" class="send-btn">전송</button>
+                        </div>
+                        <div class="input-options">
+                            <label class="option-label">
+                                <input type="checkbox" id="internal-note"> 내부 메모 (고객에게 안보임)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Customer Info Panel -->
+            <aside class="customer-panel">
+                <div class="panel-header">
+                    <h3>고객 정보</h3>
+                </div>
+                <div id="customer-details" class="customer-details">
+                    <div class="detail-group">
+                        <label>이름</label>
+                        <span id="detail-name">홍길동</span>
+                    </div>
+                    <div class="detail-group">
+                        <label>고객 ID</label>
+                        <span id="detail-customer-id">user_123</span>
+                    </div>
+                    <div class="detail-group">
+                        <label>이메일</label>
+                        <span id="detail-email">hong@example.com</span>
+                    </div>
+                    <div class="detail-group">
+                        <label>총 대화</label>
+                        <span id="detail-chats">5회</span>
+                    </div>
+                    <div class="detail-group">
+                        <label>첫 방문</label>
+                        <span id="detail-first-visit">2024-01-15</span>
+                    </div>
+                    <div class="detail-group">
+                        <label>태그</label>
+                        <div class="tags" id="detail-tags">
+                            <span class="tag">VIP</span>
+                            <span class="tag">재구매</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Footer Stats -->
+        <footer class="dashboard-footer">
+            <div class="stat-item">
+                <span class="stat-label">대기</span>
+                <span class="stat-value" id="stat-waiting">3</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">진행중</span>
+                <span class="stat-value" id="stat-active">5</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">오늘 완료</span>
+                <span class="stat-value" id="stat-completed">127</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">평균 응답</span>
+                <span class="stat-value" id="stat-response-time">2분 30초</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast Light Chat - Widget Demo</title>
+    <link rel="stylesheet" href="widget.css">
+</head>
+<body>
+    <div class="demo-page">
+        <h1>Fast Light Chat Demo</h1>
+        <p>우측 하단의 채팅 버튼을 클릭하여 상담을 시작하세요.</p>
+    </div>
+
+    <!-- Chat Widget -->
+    <div id="chat-widget" class="chat-widget">
+        <!-- Floating Button -->
+        <button id="chat-toggle" class="chat-toggle">
+            <span class="chat-toggle-icon">💬</span>
+            <span class="chat-toggle-close">✕</span>
+        </button>
+
+        <!-- Chat Window -->
+        <div id="chat-window" class="chat-window hidden">
+            <!-- Header -->
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <span class="chat-header-title">Fast Light Chat</span>
+                    <span class="chat-header-status">온라인</span>
+                </div>
+                <div class="chat-header-actions">
+                    <button id="chat-minimize" class="chat-action-btn">─</button>
+                    <button id="chat-close" class="chat-action-btn">✕</button>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="chat-messages" class="chat-messages">
+                <div class="chat-welcome">
+                    <p>안녕하세요! 무엇을 도와드릴까요?</p>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typing-indicator" class="typing-indicator hidden">
+                <span class="typing-dots">
+                    <span></span><span></span><span></span>
+                </span>
+                <span class="typing-text">상담원이 입력 중...</span>
+            </div>
+
+            <!-- Input -->
+            <div class="chat-input-container">
+                <input
+                    type="text"
+                    id="chat-input"
+                    class="chat-input"
+                    placeholder="메시지를 입력하세요..."
+                    maxlength="5000"
+                >
+                <button id="chat-attach" class="chat-attach-btn" title="파일 첨부">
+                    📎
+                </button>
+                <button id="chat-send" class="chat-send-btn" title="전송">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="widget.js"></script>
+</body>
+</html>
