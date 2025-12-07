@@ -19,6 +19,8 @@ from app.domains.environment.router import router as environment_router
 from app.domains.agent.router import router as agent_router
 from app.domains.user.router import router as user_router
 from app.domains.chat.router import router as chat_router
+from app.domains.satisfaction.router import router as satisfaction_router
+from app.domains.tone_profile.router import router as tone_profile_router
 
 
 @asynccontextmanager
@@ -154,3 +156,5 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(agent_router, prefix=f"{api_prefix}/agents", tags=["Agents"])
     app.include_router(user_router, prefix=f"{api_prefix}/users", tags=["Users"])
     app.include_router(chat_router, prefix=f"{api_prefix}/chats", tags=["Chats"])
+    app.include_router(satisfaction_router, prefix=api_prefix, tags=["Satisfaction"])
+    app.include_router(tone_profile_router, prefix=api_prefix, tags=["Tone Profile"])

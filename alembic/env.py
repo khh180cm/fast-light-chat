@@ -15,6 +15,7 @@ from app.db.postgres import Base
 from app.domains.organization.models import Organization, OrganizationSettingsHistory
 from app.domains.environment.models import Environment
 from app.domains.agent.models import Agent, RefreshToken
+from app.domains.tone_profile.models import ToneProfile, ToneProfileVersion
 
 # Alembic Config object
 config = context.config

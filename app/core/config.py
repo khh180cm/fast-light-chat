@@ -68,6 +68,13 @@ class Settings(BaseSettings):
     # Temp User TTL (Redis)
     temp_user_ttl_hours: int = 24
 
+    # LLM Settings
+    llm_provider: str = "openai"  # "openai" or "anthropic"
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-3-haiku-20240307"
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def parse_cors_origins(cls, v):
