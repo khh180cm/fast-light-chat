@@ -90,7 +90,10 @@ class MessageDraftCreate(BaseModel):
 
     chat_id: str
     original_message: str = Field(..., min_length=1, max_length=2000)
-    use_ai_transform: bool = True
+    use_ai_transform: bool = Field(
+        default=False,
+        description="말투 교정 모드 활성화 여부. True면 AI가 오타 교정 + 말투 변환을 수행합니다.",
+    )
 
 
 class MessageDraftResponse(BaseModel):
