@@ -1,6 +1,6 @@
 """Environment domain service - environment and API key management."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import select
@@ -143,7 +143,7 @@ class EnvironmentService:
         env.plugin_key = new_plugin_key
         env.api_key = new_api_key
         env.api_secret_hash = hash_password(new_api_secret)
-        env.key_rotated_at = datetime.utcnow()
+        env.key_rotated_at = datetime.now(timezone.utc)
 
         await self.db.commit()
         await self.db.refresh(env)

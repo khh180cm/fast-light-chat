@@ -1,6 +1,6 @@
 """Satisfaction survey models for MongoDB."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -40,7 +40,7 @@ class SatisfactionSurvey(BaseModel):
     triggered_by: str  # "agent_resolve" | "user_close" | "auto_close"
 
     # Timestamps
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     responded_at: datetime | None = None
     expires_at: datetime | None = None
 

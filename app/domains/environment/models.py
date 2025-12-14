@@ -1,7 +1,7 @@
 """Environment SQLAlchemy models."""
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum as PyEnum
 
 from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, String
@@ -45,17 +45,17 @@ class Environment(Base):
     api_secret_hash = Column(String(128), nullable=False)
 
     # Key management
-    key_rotated_at = Column(DateTime, nullable=True)
+    key_rotated_at = Column(DateTime(timezone=True), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
 
     # Allowed domains for CORS
     allowed_domains = Column(JSONB, default=list, nullable=False)
 
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(
-        DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
 

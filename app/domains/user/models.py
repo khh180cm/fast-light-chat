@@ -4,7 +4,7 @@ Users are stored in MongoDB with organization-specific collections.
 Collection naming: users_{org_id}_{env_type}
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -56,10 +56,10 @@ class User(BaseModel):
     status: UserStatus = Field(default=UserStatus.ACTIVE)
 
     # Timestamps
-    first_seen_at: datetime = Field(default_factory=datetime.utcnow)
-    last_seen_at: datetime = Field(default_factory=datetime.utcnow)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    first_seen_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_seen_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
         populate_by_name = True
@@ -83,5 +83,5 @@ class TempUser(BaseModel):
     # Conversation history (stored temporarily)
     chat_ids: list[str] = Field(default_factory=list)
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    last_activity_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_activity_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

@@ -1,7 +1,7 @@
 """User repository - data access layer for MongoDB."""
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from bson import ObjectId
@@ -63,8 +63,8 @@ class MongoUserRepository(UserRepositoryInterface):
     async def create(self, user: User) -> User:
         """Create a new user."""
         user_dict = user.model_dump(exclude={"id"}, by_alias=True)
-        user_dict["created_at"] = datetime.utcnow()
-        user_dict["updated_at"] = datetime.utcnow()
+        user_dict["created_at"] = datetime.now(timezone.utc)
+        user_dict["updated_at"] = datetime.now(timezone.utc)
 
         result = await self._collection.insert_one(user_dict)
         user.id = str(result.inserted_id)
@@ -128,7 +128,7 @@ class MongoUserRepository(UserRepositoryInterface):
 
     async def update(self, user: User) -> User:
         """Update a user."""
-        user.updated_at = datetime.utcnow()
+        user.updated_at = datetime.now(timezone.utc)
         user_dict = user.model_dump(exclude={"id"}, by_alias=True)
 
         await self._collection.update_one(
@@ -144,7 +144,7 @@ class MongoUserRepository(UserRepositoryInterface):
             {
                 "$set": {
                     "status": UserStatus.DELETED.value,
-                    "updated_at": datetime.utcnow(),
+                    "updated_at": datetime.now(timezone.utc),
                 }
             },
         )
@@ -157,7 +157,7 @@ class MongoUserRepository(UserRepositoryInterface):
         messages: int = 0,
     ) -> None:
         """Increment user statistics."""
-        update: dict[str, Any] = {"$set": {"last_seen_at": datetime.utcnow()}}
+        update: dict[str, Any] = {"$set": {"last_seen_at": datetime.now(timezone.utc)}}
         inc: dict[str, int] = {}
 
         if chats:
@@ -246,7 +246,7 @@ class RedisTempUserRepository(TempUserRepositoryInterface):
         if ttl < 0:
             ttl = 86400  # Default 24 hours if no TTL
 
-        temp_user.last_activity_at = datetime.utcnow()
+        temp_user.last_activity_at = datetime.now(timezone.utc)
         data = temp_user.model_dump_json()
 
         await self._redis.setex(key, ttl, data)

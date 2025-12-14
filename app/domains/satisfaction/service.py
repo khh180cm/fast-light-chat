@@ -1,6 +1,6 @@
 """Satisfaction survey service - business logic."""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from app.core.exceptions import NotFoundError, ValidationError
 from app.domains.satisfaction.models import SatisfactionSurvey, SurveyStatus
@@ -57,7 +57,7 @@ class SatisfactionService:
             member_id=member_id,
             agent_id=agent_id,
             triggered_by=triggered_by,
-            expires_at=datetime.utcnow() + timedelta(hours=expires_in_hours),
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=expires_in_hours),
         )
 
         return await self._repo.create(survey)
@@ -94,7 +94,7 @@ class SatisfactionService:
             raise ValidationError(f"Survey is already {survey.status}")
 
         # Check if expired
-        if survey.expires_at and datetime.utcnow() > survey.expires_at:
+        if survey.expires_at and datetime.now(timezone.utc) > survey.expires_at:
             raise ValidationError("Survey has expired")
 
         success = await self._repo.submit_response(

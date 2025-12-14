@@ -5,7 +5,7 @@ Drafts are stored in Redis for quick access and auto-expiration.
 
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -44,8 +44,8 @@ class MessageDraft(BaseModel):
     status: DraftStatus = DraftStatus.PENDING
 
     # Timestamps
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class MessageDraftService:
@@ -168,7 +168,7 @@ class MessageDraftService:
             return None
 
         draft.final_message = final_message
-        draft.updated_at = datetime.utcnow()
+        draft.updated_at = datetime.now(timezone.utc)
 
         # Save back
         await self._redis.setex(
@@ -186,7 +186,7 @@ class MessageDraftService:
             return None
 
         draft.status = DraftStatus.SENT
-        draft.updated_at = datetime.utcnow()
+        draft.updated_at = datetime.now(timezone.utc)
 
         # Save with short TTL (keep for reference)
         await self._redis.setex(
@@ -236,7 +236,7 @@ class MessageDraftService:
             return None
 
         draft.final_message = draft.original_message
-        draft.updated_at = datetime.utcnow()
+        draft.updated_at = datetime.now(timezone.utc)
 
         await self._redis.setex(
             self._draft_key(draft_id),

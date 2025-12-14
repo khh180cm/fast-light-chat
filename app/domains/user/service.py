@@ -4,7 +4,7 @@ This service handles both permanent users (MongoDB) and
 temporary users (Redis) for the chat system.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 from app.core.exceptions import ConflictError, NotFoundError
@@ -107,7 +107,7 @@ class UserService:
         existing = await self._repository.get_by_member_id(data.member_id)
         if existing:
             # Update last_seen_at
-            existing.last_seen_at = datetime.utcnow()
+            existing.last_seen_at = datetime.now(timezone.utc)
             await self._repository.update(existing)
             return existing, False
 
@@ -169,7 +169,7 @@ class UserService:
         if data.tags is not None:
             user.tags = data.tags
 
-        user.last_seen_at = datetime.utcnow()
+        user.last_seen_at = datetime.now(timezone.utc)
         return await self._repository.update(user)
 
     async def delete_user(self, member_id: str) -> bool:

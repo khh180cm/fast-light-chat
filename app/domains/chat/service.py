@@ -1,6 +1,6 @@
 """Chat domain service - chat management business logic."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.core.exceptions import NotFoundError, ValidationError
 from app.domains.chat.models import (
@@ -150,7 +150,7 @@ class ChatService:
         if chat.first_response_at is None:
             chat = await self._chat_repo.get_by_id(chat_id)
             if isinstance(self._chat_repo, MongoChatRepository):
-                chat.first_response_at = datetime.utcnow()
+                chat.first_response_at = datetime.now(timezone.utc)
                 await self._chat_repo.update(chat)
 
         return await self.get_chat(chat_id)
@@ -274,7 +274,7 @@ class ChatService:
 
         # Track first response time for agent messages
         if sender_type == SenderType.AGENT and chat.first_response_at is None:
-            chat.first_response_at = datetime.utcnow()
+            chat.first_response_at = datetime.now(timezone.utc)
             await self._chat_repo.update(chat)
 
         return message

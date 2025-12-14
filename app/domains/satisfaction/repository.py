@@ -1,7 +1,7 @@
 """Satisfaction survey repository for MongoDB."""
 
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -97,7 +97,7 @@ class MongoSatisfactionRepository(SatisfactionRepositoryInterface):
                     "rating": rating,
                     "feedback": feedback,
                     "status": SurveyStatus.COMPLETED,
-                    "responded_at": datetime.utcnow(),
+                    "responded_at": datetime.now(timezone.utc),
                 }
             },
         )
@@ -113,7 +113,7 @@ class MongoSatisfactionRepository(SatisfactionRepositoryInterface):
             {
                 "$set": {
                     "status": SurveyStatus.SKIPPED,
-                    "responded_at": datetime.utcnow(),
+                    "responded_at": datetime.now(timezone.utc),
                 }
             },
         )

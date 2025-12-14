@@ -2,7 +2,7 @@
 
 import base64
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from bson import ObjectId
@@ -110,8 +110,8 @@ class MongoChatRepository(ChatRepositoryInterface):
     async def create(self, chat: Chat) -> Chat:
         """Create a new chat."""
         chat_dict = chat.model_dump(exclude={"id"}, by_alias=True)
-        chat_dict["created_at"] = datetime.utcnow()
-        chat_dict["updated_at"] = datetime.utcnow()
+        chat_dict["created_at"] = datetime.now(timezone.utc)
+        chat_dict["updated_at"] = datetime.now(timezone.utc)
 
         result = await self._collection.insert_one(chat_dict)
         chat.id = str(result.inserted_id)
@@ -191,7 +191,7 @@ class MongoChatRepository(ChatRepositoryInterface):
 
     async def update(self, chat: Chat) -> Chat:
         """Update a chat."""
-        chat.updated_at = datetime.utcnow()
+        chat.updated_at = datetime.now(timezone.utc)
         chat_dict = chat.model_dump(exclude={"id"}, by_alias=True)
 
         await self._collection.update_one(
@@ -204,13 +204,13 @@ class MongoChatRepository(ChatRepositoryInterface):
         """Update chat status."""
         update: dict[str, Any] = {
             "status": status.value if isinstance(status, ChatStatus) else status,
-            "updated_at": datetime.utcnow(),
+            "updated_at": datetime.now(timezone.utc),
         }
 
         if status == ChatStatus.RESOLVED:
-            update["resolved_at"] = datetime.utcnow()
+            update["resolved_at"] = datetime.now(timezone.utc)
         elif status == ChatStatus.CLOSED:
-            update["closed_at"] = datetime.utcnow()
+            update["closed_at"] = datetime.now(timezone.utc)
 
         result = await self._collection.update_one(
             {"_id": ObjectId(chat_id)},
@@ -223,7 +223,7 @@ class MongoChatRepository(ChatRepositoryInterface):
         update: dict[str, Any] = {
             "assigned_agent_id": agent_id,
             "status": ChatStatus.ACTIVE.value,
-            "updated_at": datetime.utcnow(),
+            "updated_at": datetime.now(timezone.utc),
         }
 
         result = await self._collection.update_one(
@@ -253,7 +253,7 @@ class MongoChatRepository(ChatRepositoryInterface):
                 "$inc": inc,
                 "$set": {
                     "last_message": last_message.model_dump(),
-                    "updated_at": datetime.utcnow(),
+                    "updated_at": datetime.now(timezone.utc),
                 },
             },
         )
@@ -267,7 +267,7 @@ class MongoChatRepository(ChatRepositoryInterface):
         field = "unread_count_user" if reader_type == SenderType.USER else "unread_count_agent"
         await self._collection.update_one(
             {"_id": ObjectId(chat_id)},
-            {"$set": {field: 0, "updated_at": datetime.utcnow()}},
+            {"$set": {field: 0, "updated_at": datetime.now(timezone.utc)}},
         )
 
     async def get_statistics(self) -> dict[str, Any]:
@@ -344,8 +344,8 @@ class MongoMessageRepository(MessageRepositoryInterface):
     async def create(self, message: Message) -> Message:
         """Create a new message."""
         message_dict = message.model_dump(exclude={"id"}, by_alias=True)
-        message_dict["created_at"] = datetime.utcnow()
-        message_dict["updated_at"] = datetime.utcnow()
+        message_dict["created_at"] = datetime.now(timezone.utc)
+        message_dict["updated_at"] = datetime.now(timezone.utc)
 
         result = await self._collection.insert_one(message_dict)
         message.id = str(result.inserted_id)
@@ -463,6 +463,6 @@ class MongoMessageRepository(MessageRepositoryInterface):
 
         result = await self._collection.update_many(
             query,
-            {"$set": {field: True, "updated_at": datetime.utcnow()}},
+            {"$set": {field: True, "updated_at": datetime.now(timezone.utc)}},
         )
         return result.modified_count

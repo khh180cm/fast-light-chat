@@ -4,7 +4,7 @@ Chats and messages are stored in MongoDB with organization-specific collections.
 Collection naming: chats_{org_id}_{env_type}, messages_{org_id}_{env_type}
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -84,11 +84,11 @@ class Chat(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     # Timestamps
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     first_response_at: datetime | None = None  # When agent first responded
     resolved_at: datetime | None = None
     closed_at: datetime | None = None
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
         populate_by_name = True
@@ -118,8 +118,8 @@ class Message(BaseModel):
     read_by_agent: bool = False
 
     # Timestamps
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     class Config:
         populate_by_name = True

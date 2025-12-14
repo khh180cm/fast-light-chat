@@ -1,7 +1,7 @@
 """Agent SQLAlchemy models."""
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum as PyEnum
 
 from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String
@@ -69,13 +69,13 @@ class Agent(Base):
 
     # Account status
     is_active = Column(Boolean, default=True, nullable=False)
-    last_login_at = Column(DateTime, nullable=True)
+    last_login_at = Column(DateTime(timezone=True), nullable=True)
 
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(
-        DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
 
@@ -108,9 +108,9 @@ class RefreshToken(Base):
     device_info = Column(String(255), nullable=True)
     ip_address = Column(String(45), nullable=True)
 
-    expires_at = Column(DateTime, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    revoked_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    revoked_at = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     agent = relationship("Agent", back_populates="refresh_tokens")
@@ -118,7 +118,7 @@ class RefreshToken(Base):
     @property
     def is_expired(self) -> bool:
         """Check if token is expired."""
-        return datetime.utcnow() > self.expires_at
+        return datetime.now(timezone.utc) > self.expires_at
 
     @property
     def is_revoked(self) -> bool:

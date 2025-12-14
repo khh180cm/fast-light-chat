@@ -52,7 +52,7 @@ class AuthService:
             raise InvalidCredentialsError()
 
         # Update last login
-        agent.last_login_at = datetime.utcnow()
+        agent.last_login_at = datetime.now(timezone.utc)
         await self.db.commit()
 
         # Create tokens
@@ -152,7 +152,7 @@ class AuthService:
         token_record = result.scalar_one_or_none()
 
         if token_record:
-            token_record.revoked_at = datetime.utcnow()
+            token_record.revoked_at = datetime.now(timezone.utc)
             await self.db.commit()
 
     async def revoke_all_refresh_tokens(self, agent_id: str) -> int:
@@ -176,7 +176,7 @@ class AuthService:
 
         count = 0
         for token in tokens:
-            token.revoked_at = datetime.utcnow()
+            token.revoked_at = datetime.now(timezone.utc)
             count += 1
 
         await self.db.commit()
