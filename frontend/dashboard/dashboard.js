@@ -26,6 +26,7 @@ class AgentDashboard {
         this.agentStatusSelect = document.getElementById('agent-status');
         this.filterTabs = document.querySelectorAll('.filter-tab');
         this.internalNoteCheckbox = document.getElementById('internal-note');
+        this.aiToneCheckbox = document.getElementById('ai-tone-transform');
 
         // Event Listeners
         this.sendBtn.addEventListener('click', () => this.sendMessage());
@@ -224,32 +225,69 @@ class AgentDashboard {
         this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
     }
 
-    sendMessage() {
+    async sendMessage() {
         const content = this.messageInput.value.trim();
         if (!content || !this.currentChatId) return;
 
         const isInternal = this.internalNoteCheckbox.checked;
+        const useAiTone = this.aiToneCheckbox.checked && !isInternal;
 
-        // Add message to UI immediately
-        this.addMessage({
-            type: 'agent',
-            content: content,
-            internal: isInternal
-        });
-
-        // Clear input (내부 메모 상태는 유지)
+        // Clear input immediately for better UX
         this.messageInput.value = '';
         this.messageInput.style.height = 'auto';
+
+        let finalContent = content;
+
+        // AI 말투 교정 적용 (내부 메모가 아닐 때만)
+        if (useAiTone) {
+            try {
+                console.log('[AI 교정] 원본:', content);
+                const transformed = await this.transformMessage(content);
+                console.log('[AI 교정] 응답:', transformed);
+                if (transformed && transformed.transformed_message) {
+                    finalContent = transformed.transformed_message;
+                    console.log('[AI 교정] 변환됨:', finalContent);
+                }
+            } catch (error) {
+                console.error('[AI 교정] 실패:', error);
+                // 실패 시 원본 메시지 사용
+            }
+        }
+
+        // Add message to UI
+        this.addMessage({
+            type: 'agent',
+            content: finalContent,
+            internal: isInternal
+        });
 
         // Send via Socket.IO
         if (this.socket) {
             this.socket.emit('chat:message', {
                 chat_id: this.currentChatId,
-                content: content,
+                content: finalContent,
                 type: 'text',
                 internal: isInternal
             });
         }
+    }
+
+    async transformMessage(originalMessage) {
+        const response = await fetch(`${this.serverUrl}/v1/tone-profile/transform`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // TODO: 로그인 기능 구현 후 활성화
+                // 'Authorization': `Bearer ${this.accessToken}`
+            },
+            body: JSON.stringify({ original_message: originalMessage })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Transform API error: ${response.status}`);
+        }
+
+        return await response.json();
     }
 
     updateAgentStatus(status) {

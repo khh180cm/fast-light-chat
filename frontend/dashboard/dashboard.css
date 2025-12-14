@@ -421,6 +421,9 @@ body {
 
 .input-options {
     margin-top: 8px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
 .option-label {
@@ -430,6 +433,24 @@ body {
     font-size: 13px;
     color: #666;
     cursor: pointer;
+}
+
+.ai-tone-label {
+    color: #667eea;
+    font-weight: 500;
+}
+
+.ai-tone-label .ai-icon {
+    font-size: 14px;
+}
+
+.ai-tone-label input:checked + .ai-icon {
+    animation: sparkle 0.5s ease;
+}
+
+@keyframes sparkle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
 }
 
 /* Customer Panel */
