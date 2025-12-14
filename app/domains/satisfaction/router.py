@@ -47,12 +47,12 @@ def get_satisfaction_service_jwt(
     env_type = "production"
     repo = MongoSatisfactionRepository(
         db=db,
-        org_id=str(agent.organization_id),
+        org_id=str(agent["org_id"]),
         env_type=env_type,
     )
     return SatisfactionService(
         repository=repo,
-        org_id=str(agent.organization_id),
+        org_id=str(agent["org_id"]),
         env_type=env_type,
     )
 

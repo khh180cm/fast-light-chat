@@ -48,7 +48,7 @@ async def get_profile(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Get the organization's tone profile."""
-    service = ToneProfileService(db, agent.organization_id)
+    service = ToneProfileService(db, agent["org_id"])
     profile = await service.get_or_create_profile()
     return ToneProfileResponse.model_validate(profile)
 
@@ -65,8 +65,8 @@ async def update_profile(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Update the tone profile."""
-    service = ToneProfileService(db, agent.organization_id)
-    profile = await service.update_profile(data, agent.id)
+    service = ToneProfileService(db, agent["org_id"])
+    profile = await service.update_profile(data, agent["user_id"])
     return ToneProfileResponse.model_validate(profile)
 
 
@@ -83,7 +83,7 @@ async def get_versions(
     offset: int = Query(0, ge=0),
 ):
     """Get tone profile version history."""
-    service = ToneProfileService(db, agent.organization_id)
+    service = ToneProfileService(db, agent["org_id"])
     versions, total = await service.get_version_history(limit, offset)
     return ToneProfileVersionListResponse(
         items=[ToneProfileVersionResponse.model_validate(v) for v in versions],
@@ -103,8 +103,8 @@ async def restore_version(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Restore to a previous version."""
-    service = ToneProfileService(db, agent.organization_id)
-    profile = await service.restore_version(version, agent.id)
+    service = ToneProfileService(db, agent["org_id"])
+    profile = await service.restore_version(version, agent["user_id"])
     return ToneProfileResponse.model_validate(profile)
 
 
@@ -124,7 +124,7 @@ async def toggle_active(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Toggle tone profile active status."""
-    service = ToneProfileService(db, agent.organization_id)
+    service = ToneProfileService(db, agent["org_id"])
     profile = await service.toggle_active(data.is_active)
     return ToneProfileResponse.model_validate(profile)
 
@@ -147,7 +147,7 @@ async def transform_message(
     provider: LLMProviderType | None = Query(None, description="LLM provider to use"),
 ):
     """Transform a message using AI."""
-    transformer = MessageTransformer(db, agent.organization_id)
+    transformer = MessageTransformer(db, agent["org_id"])
     result = await transformer.transform(data.original_message, provider)
     return MessageTransformResponse(
         original_message=result["original_message"],
@@ -175,7 +175,7 @@ async def preview_transform(
     provider: LLMProviderType | None = Query(None),
 ):
     """Preview transformation with custom prompt."""
-    transformer = MessageTransformer(db, agent.organization_id)
+    transformer = MessageTransformer(db, agent["org_id"])
     result = await transformer.preview_transform(
         data.original_message,
         data.custom_prompt,
@@ -235,12 +235,12 @@ async def create_draft(
 ):
     """Create a new message draft."""
     redis = get_redis()
-    transformer = MessageTransformer(db, agent.organization_id)
+    transformer = MessageTransformer(db, agent["org_id"])
     service = MessageDraftService(
         redis=redis,
         transformer=transformer,
-        org_id=str(agent.organization_id),
-        agent_id=str(agent.id),
+        org_id=str(agent["org_id"]),
+        agent_id=str(agent["user_id"]),
     )
     draft = await service.create_draft(
         chat_id=data.chat_id,
@@ -262,12 +262,12 @@ async def get_my_drafts(
 ):
     """Get all pending drafts for current agent."""
     redis = get_redis()
-    transformer = MessageTransformer(db, agent.organization_id)
+    transformer = MessageTransformer(db, agent["org_id"])
     service = MessageDraftService(
         redis=redis,
         transformer=transformer,
-        org_id=str(agent.organization_id),
-        agent_id=str(agent.id),
+        org_id=str(agent["org_id"]),
+        agent_id=str(agent["user_id"]),
     )
     drafts = await service.get_agent_drafts()
     return [DraftResponse.from_draft(d) for d in drafts]
@@ -286,12 +286,12 @@ async def get_draft(
 ):
     """Get a specific draft."""
     redis = get_redis()
-    transformer = MessageTransformer(db, agent.organization_id)
+    transformer = MessageTransformer(db, agent["org_id"])
     service = MessageDraftService(
         redis=redis,
         transformer=transformer,
-        org_id=str(agent.organization_id),
-        agent_id=str(agent.id),
+        org_id=str(agent["org_id"]),
+        agent_id=str(agent["user_id"]),
     )
     draft = await service.get_draft(draft_id)
     if not draft:
@@ -314,12 +314,12 @@ async def update_draft(
 ):
     """Update draft's final message."""
     redis = get_redis()
-    transformer = MessageTransformer(db, agent.organization_id)
+    transformer = MessageTransformer(db, agent["org_id"])
     service = MessageDraftService(
         redis=redis,
         transformer=transformer,
-        org_id=str(agent.organization_id),
-        agent_id=str(agent.id),
+        org_id=str(agent["org_id"]),
+        agent_id=str(agent["user_id"]),
     )
     draft = await service.update_draft(draft_id, data.final_message)
     if not draft:
@@ -341,12 +341,12 @@ async def use_original(
 ):
     """Use original message instead of transformed."""
     redis = get_redis()
-    transformer = MessageTransformer(db, agent.organization_id)
+    transformer = MessageTransformer(db, agent["org_id"])
     service = MessageDraftService(
         redis=redis,
         transformer=transformer,
-        org_id=str(agent.organization_id),
-        agent_id=str(agent.id),
+        org_id=str(agent["org_id"]),
+        agent_id=str(agent["user_id"]),
     )
     draft = await service.use_original(draft_id)
     if not draft:
@@ -368,12 +368,12 @@ async def send_draft(
 ):
     """Mark draft as sent."""
     redis = get_redis()
-    transformer = MessageTransformer(db, agent.organization_id)
+    transformer = MessageTransformer(db, agent["org_id"])
     service = MessageDraftService(
         redis=redis,
         transformer=transformer,
-        org_id=str(agent.organization_id),
-        agent_id=str(agent.id),
+        org_id=str(agent["org_id"]),
+        agent_id=str(agent["user_id"]),
     )
     draft = await service.mark_sent(draft_id)
     if not draft:
@@ -394,12 +394,12 @@ async def discard_draft(
 ):
     """Discard a draft."""
     redis = get_redis()
-    transformer = MessageTransformer(db, agent.organization_id)
+    transformer = MessageTransformer(db, agent["org_id"])
     service = MessageDraftService(
         redis=redis,
         transformer=transformer,
-        org_id=str(agent.organization_id),
-        agent_id=str(agent.id),
+        org_id=str(agent["org_id"]),
+        agent_id=str(agent["user_id"]),
     )
     success = await service.discard_draft(draft_id)
     if not success:
