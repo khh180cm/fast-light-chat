@@ -8,8 +8,7 @@ from enum import Enum
 class LLMProviderType(str, Enum):
     """Supported LLM providers."""
 
-    OPENAI = "openai"
-    ANTHROPIC = "anthropic"
+    GEMINI = "gemini"
 
 
 @dataclass

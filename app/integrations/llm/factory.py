@@ -26,23 +26,14 @@ def get_llm_provider(
     if isinstance(provider_type, str):
         provider_type = LLMProviderType(provider_type.lower())
 
-    if provider_type == LLMProviderType.OPENAI:
-        from app.integrations.llm.openai_provider import OpenAIProvider
+    if provider_type == LLMProviderType.GEMINI:
+        from app.integrations.llm.gemini_provider import GeminiProvider
 
-        api_key = settings.openai_api_key
+        api_key = settings.gemini_api_key
         if not api_key:
-            raise ValueError("OPENAI_API_KEY environment variable not set")
+            raise ValueError("GEMINI_API_KEY environment variable not set")
 
-        return OpenAIProvider(api_key=api_key, model=settings.openai_model)
-
-    elif provider_type == LLMProviderType.ANTHROPIC:
-        from app.integrations.llm.anthropic_provider import AnthropicProvider
-
-        api_key = settings.anthropic_api_key
-        if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY environment variable not set")
-
-        return AnthropicProvider(api_key=api_key, model=settings.anthropic_model)
+        return GeminiProvider(api_key=api_key, model=settings.gemini_model)
 
     else:
         raise ValueError(f"Unknown LLM provider: {provider_type}")
@@ -52,10 +43,7 @@ def get_available_providers() -> list[LLMProviderType]:
     """Get list of available (configured) LLM providers."""
     available = []
 
-    if settings.openai_api_key:
-        available.append(LLMProviderType.OPENAI)
-
-    if settings.anthropic_api_key:
-        available.append(LLMProviderType.ANTHROPIC)
+    if settings.gemini_api_key:
+        available.append(LLMProviderType.GEMINI)
 
     return available

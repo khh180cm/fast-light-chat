@@ -49,7 +49,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
         pydantic-settings \
         email-validator \
         python-dateutil \
-        httpx
+        httpx \
+        google-genai
 
 # ============================================
 # Stage 3: Development

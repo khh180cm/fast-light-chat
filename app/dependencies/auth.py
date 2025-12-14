@@ -38,6 +38,22 @@ async def get_current_agent(
     Returns:
         dict with user_id, org_id, role, email, name
     """
+    from app.core.config import settings
+
+    # 개발 환경에서 토큰 없으면 더미 에이전트 반환
+    if settings.debug and not credentials:
+        # 첫 번째 조직의 첫 번째 에이전트 사용
+        result = await db.execute(select(Agent).where(Agent.is_active == True).limit(1))
+        agent = result.scalar_one_or_none()
+        if agent:
+            return {
+                "user_id": str(agent.id),
+                "org_id": str(agent.organization_id),
+                "role": agent.role.value,
+                "email": agent.email,
+                "name": agent.name,
+            }
+
     if not credentials:
         raise AuthenticationError("Authorization header required")
 
